@@ -7,7 +7,7 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2];
 
-const url = `mongodb+srv://jamesjamil007:${password}@cluster0.sl17drf.mongodb.net/noteApp?retryWrites=true&w=majority`;
+const url = `mongodb+srv://jamesjamil007:${password}@cluster0.sl17drf.mongodb.net/testNoteApp?retryWrites=true&w=majority`;
 
 mongoose.set("strictQuery", false);
 mongoose.connect(url);
@@ -21,7 +21,7 @@ const Note = mongoose.model("Note", noteSchema);
 
 // create new note
 // const note = new Note({
-//   content: "HTML is Easy",
+//   content: "Test note",
 //   important: true,
 // });
 
