@@ -1,3 +1,6 @@
+// add jwt for token creation
+const jwt = require("jsonwebtoken");
+
 // create notes router
 const notesRouter = require("express").Router();
 
@@ -36,11 +39,28 @@ notesRouter.put("/:id", async (request, response) => {
   response.json(updatedNote);
 });
 
+// get token from request
+const getTokenFrom = (request) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.startsWith("Bearer ")) {
+    return authorization.replace("Bearer ", "");
+  }
+  return null;
+};
+
 // post note
 notesRouter.post("/", async (request, response) => {
   const body = request.body;
 
-  const user = await User.findById(body.userId);
+  // decode token
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
+
+  // get user from token
+  const user = await User.findById(decodedToken.id);
 
   const note = new Note({
     content: body.content,
