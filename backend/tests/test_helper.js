@@ -5,12 +5,10 @@ const initialNotes = [
   {
     content: "HTML is easy",
     important: false,
-    userId: "5f8e3b2c1c2e6a2a4c3a1f2d",
   },
   {
     content: "Browser can execute only JavaScript",
     important: true,
-    userId: "5f8e3b2c1c2e6a2a4c3a1f2d",
   },
 ];
 
@@ -47,10 +45,22 @@ const usersInDb = async () => {
   return users.map((user) => user.toJSON());
 };
 
+// const newUser = async () => {
+//   const user = new User({
+//     username: "testuser",
+//     name: "Test User",
+//     password: "testpassword",
+//   });
+
+//   await user.save();
+//   return user;
+// };
+
 module.exports = {
   initialNotes,
   initialUsers,
   nonExistingId,
   notesInDb,
   usersInDb,
+  //   newUser,
 };
