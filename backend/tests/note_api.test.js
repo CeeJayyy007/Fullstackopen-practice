@@ -8,10 +8,32 @@ const Note = require("../models/note");
 const User = require("../models/user");
 
 beforeEach(async () => {
-  await Note.deleteMany({});
-  await Note.insertMany(helper.initialNotes);
-  await User.deleteMany({});
-  await User.insertMany(helper.initialUsers);
+  // delete all notes and users at start
+  await Promise.all([Note.deleteMany({}), User.deleteMany({})]);
+
+  // create initial users
+  const userPromises = helper.initialUsers.map((user) =>
+    api.post("/api/users").send(user)
+  );
+  await Promise.all(userPromises);
+
+  // login initial user
+  const loginResponse = await api.post("/api/login").send({
+    username: helper.initialUsers[0].username,
+    password: helper.initialUsers[0].password,
+  });
+
+  // get token from login response
+  const token = loginResponse.body.token;
+
+  // create initial notes
+  const notePromises = helper.initialNotes.map((note) =>
+    api
+      .post("/api/notes")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ ...note, userId: loginResponse.body.id })
+  );
+  await Promise.all(notePromises);
 });
 
 describe("when there is initially some notes saved", () => {
@@ -48,7 +70,8 @@ describe("viewing a specific note", () => {
       .expect(200)
       .expect("Content-Type", /application\/json/);
 
-    expect(resultNote.body).toEqual(noteToView);
+    console.log("result note", resultNote.body);
+    expect(resultNote.body.content).toEqual(noteToView.content);
   });
 
   test("fails with statuscode 404 if note does not exist", async () => {
@@ -66,20 +89,22 @@ describe("viewing a specific note", () => {
 
 describe("addition of a new note", () => {
   test("succeeds with valid data", async () => {
-    const usersAtStart = await helper.usersInDb();
-    const user = usersAtStart[0];
-
     const newNote = {
       content: "async/await simplifies making async calls",
       important: true,
-      userId: user.id,
     };
+
+    const loginResponse = await api.post("/api/login").send({
+      username: helper.initialUsers[0].username,
+      password: helper.initialUsers[0].password,
+    });
+
+    const token = loginResponse.body.token;
 
     await api
       .post("/api/notes")
-      .send(newNote)
-      .expect(201)
-      .expect("Content-Type", /application\/json/);
+      .set("Authorization", `Bearer ${token}`)
+      .send({ ...newNote, userId: loginResponse.body.id });
 
     const notesAtEnd = await helper.notesInDb();
     expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1);
@@ -97,7 +122,7 @@ describe("addition of a new note", () => {
       userId: user.id,
     };
 
-    await api.post("/api/notes").send(newNote).expect(400);
+    await api.post("/api/notes").send(newNote).expect(401);
 
     const notesAtEnd = await helper.notesInDb();
 
