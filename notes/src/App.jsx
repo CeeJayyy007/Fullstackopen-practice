@@ -37,6 +37,15 @@ const App = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const loggedInUserJSON = window.localStorage.getItem("loggedInUser");
+    if (loggedInUserJSON) {
+      const user = JSON.parse(loggedInUserJSON);
+      setUser(user);
+      noteService.setToken(user.token);
+    }
+  }, []);
+
   // do not render anything if notes is still null
   if (!notes) {
     return null;
@@ -57,6 +66,11 @@ const App = () => {
 
   const handleNoteChange = (event) => {
     setNewNote(event.target.value);
+  };
+
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedInUser");
+    setUser(null);
   };
 
   const notesToShow = showAll ? notes : notes.filter((note) => note.important);
@@ -89,6 +103,10 @@ const App = () => {
         username,
         password,
       });
+
+      // save user to local storage
+      window.localStorage.setItem("loggedInUser", JSON.stringify(user));
+
       noteService.setToken(user.token);
       setUser(user);
       setUsername("");
@@ -116,7 +134,7 @@ const App = () => {
           <p>
             <strong>{user.name} </strong>logged in
           </p>
-          {noteForm(addNote, newNote, handleNoteChange)}
+          {noteForm(addNote, newNote, handleNoteChange, handleLogout)}
         </div>
       )}
 
