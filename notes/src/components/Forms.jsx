@@ -30,10 +30,11 @@ const loginForm = (
 );
 
 // note form
-const noteForm = (addNote, newNote, handleNoteChange) => (
+const noteForm = (addNote, newNote, handleNoteChange, handleLogout) => (
   <form onSubmit={addNote}>
     <input value={newNote} onChange={handleNoteChange} />
-    <button type="submit">save</button>
+    <button type="submit">Save</button>
+    <button onClick={handleLogout}>Logout</button>
   </form>
 );
 
