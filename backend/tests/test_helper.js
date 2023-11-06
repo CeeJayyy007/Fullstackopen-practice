@@ -45,22 +45,10 @@ const usersInDb = async () => {
   return users.map((user) => user.toJSON());
 };
 
-// const newUser = async () => {
-//   const user = new User({
-//     username: "testuser",
-//     name: "Test User",
-//     password: "testpassword",
-//   });
-
-//   await user.save();
-//   return user;
-// };
-
 module.exports = {
   initialNotes,
   initialUsers,
   nonExistingId,
   notesInDb,
   usersInDb,
-  //   newUser,
 };
