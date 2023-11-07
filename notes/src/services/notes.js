@@ -5,7 +5,6 @@ let token = null;
 
 const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
-  console.log("new token", token);
 };
 
 const getAll = async () => {
@@ -15,8 +14,6 @@ const getAll = async () => {
 
 const create = async (newObject) => {
   const config = { headers: { Authorization: token } };
-
-  console.log("config", config);
 
   const response = await axios.post(baseUrl, newObject, config);
   return response.data;
