@@ -1,18 +1,16 @@
 //login form
-const loginForm = (
+const LoginForm = ({
   username,
   password,
   handleLogin,
   setUsername,
-  setPassword
-) => (
+  setPassword,
+}) => (
   <form onSubmit={handleLogin}>
     <div>
       Username
       <input
-        type="text"
         value={username}
-        name="Username"
         onChange={({ target }) => setUsername(target.value)}
       />
     </div>
@@ -21,7 +19,6 @@ const loginForm = (
       <input
         type="password"
         value={password}
-        name="Password"
         onChange={({ target }) => setPassword(target.value)}
       />
     </div>
@@ -29,13 +26,4 @@ const loginForm = (
   </form>
 );
 
-// note form
-const noteForm = (addNote, newNote, handleNoteChange, handleLogout) => (
-  <form onSubmit={addNote}>
-    <input value={newNote} onChange={handleNoteChange} />
-    <button type="submit">Save</button>
-    <button onClick={handleLogout}>Logout</button>
-  </form>
-);
-
-export { loginForm, noteForm };
+export default LoginForm;
