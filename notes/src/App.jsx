@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Note from "./components/Note";
 import noteService from "./services/notes";
 import loginService from "./services/login";
@@ -6,7 +6,7 @@ import "./index.css";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NoteForm from "./components/NoteForm";
-import Togglable from "./components/Togglable";
+import Togglable from "./components/Toggleable";
 
 const Footer = () => {
   const footerStyle = {
@@ -26,11 +26,8 @@ const Footer = () => {
 
 const App = () => {
   const [notes, setNotes] = useState(null);
-  const [newNote, setNewNote] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -48,33 +45,26 @@ const App = () => {
     }
   }, []);
 
+  const noteFormRef = useRef();
+
   // do not render anything if notes is still null
   if (!notes) {
     return null;
   }
 
-  const addNote = async (event) => {
-    event.preventDefault();
-    const noteObject = {
-      content: newNote,
-      important: Math.random() > 0.5,
-    };
+  const createNote = async (noteObject) => {
+    noteFormRef.current.toggleVisibility();
 
     try {
       const returnedNote = await noteService.create(noteObject);
 
       setNotes(notes.concat(returnedNote));
-      setNewNote("");
     } catch (error) {
       setErrorMessage(error.response.data.error);
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
     }
-  };
-
-  const handleNoteChange = (event) => {
-    setNewNote(event.target.value);
   };
 
   const handleLogout = () => {
@@ -104,22 +94,15 @@ const App = () => {
       });
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
+  const login = async (credentials) => {
     try {
-      const user = await loginService.login({
-        username,
-        password,
-      });
+      const user = await loginService.login(credentials);
 
       // save user to local storage
       window.localStorage.setItem("loggedInUser", JSON.stringify(user));
 
       noteService.setToken(user.token);
       setUser(user);
-      setUsername("");
-      setPassword("");
     } catch (exception) {
       setErrorMessage("Wrong credentials");
       setTimeout(() => {
@@ -131,13 +114,7 @@ const App = () => {
   const loginForm = () => {
     return (
       <Togglable buttonLabel="login">
-        <LoginForm
-          username={username}
-          password={password}
-          handleLogin={handleLogin}
-          setUsername={setUsername}
-          setPassword={setPassword}
-        />
+        <LoginForm login={login} />
       </Togglable>
     );
   };
@@ -155,13 +132,8 @@ const App = () => {
           <p>
             <strong>{user.name} </strong>logged in
           </p>
-          <Togglable buttonLabel="new note">
-            <NoteForm
-              addNote={addNote}
-              newNote={newNote}
-              handleNoteChange={handleNoteChange}
-              handleLogout={handleLogout}
-            />
+          <Togglable buttonLabel="new note" ref={noteFormRef}>
+            <NoteForm createNote={createNote} />
           </Togglable>
           <button onClick={handleLogout}>Logout</button>
         </div>
