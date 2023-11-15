@@ -1,6 +1,4 @@
-import { createStore } from "redux";
-
-export const noteReducer = (state = [], action) => {
+const noteReducer = (state = [], action) => {
   switch (action.type) {
     case "NEW_NOTE":
       return state.concat(action.payload);
@@ -18,6 +16,24 @@ export const noteReducer = (state = [], action) => {
   }
 };
 
-const store = createStore(noteReducer);
+const generateId = () => Number((Math.random() * 1000000).toFixed(0));
 
-export default store;
+const createNote = (content) => {
+  return {
+    type: "NEW_NOTE",
+    payload: {
+      content,
+      important: false,
+      id: generateId(),
+    },
+  };
+};
+
+const toggleImportanceOf = (id) => {
+  return {
+    type: "TOGGLE_IMPORTANCE",
+    payload: { id },
+  };
+};
+
+export { noteReducer, createNote, toggleImportanceOf };
