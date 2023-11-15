@@ -1,4 +1,4 @@
-import { noteReducer } from "./reducer";
+import noteReducer from "./reducer";
 import deepFreeze from "deep-freeze";
 
 describe("noteReducer", () => {
