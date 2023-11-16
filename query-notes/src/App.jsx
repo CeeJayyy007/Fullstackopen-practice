@@ -46,6 +46,8 @@ const App = () => {
 
   if (result.isLoading) {
     return <div>loading data...</div>;
+  } else if (result.isError) {
+    return <div>error loading data</div>;
   }
 
   const notes = result.data;
